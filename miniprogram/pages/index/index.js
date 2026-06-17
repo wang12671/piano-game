@@ -1,4 +1,4 @@
-const { playNote } = require('../../utils/audio')
+const { playNote, startBgm, stopBgm } = require('../../utils/audio')
 
 Page({
   data: {
@@ -8,12 +8,16 @@ Page({
     rows: [],
     showEndModal: false,
     uploadResult: '',
+    offsetY: 0, // 用于平滑动画
   },
 
   _timer: null,
+  _animationTimer: null,
   _rowHeight: 0,
   _visibleRows: 6,
   _totalRows: 7,
+  _currentSpeed: 600,
+  _animationInterval: 16, // 约60fps的动画帧率
 
   onLoad() {
     const bestScore = wx.getStorageSync('bestScore') || 0
@@ -45,14 +49,14 @@ Page({
     return rows
   },
 
-  // 获取当前速度
+  // 获取当前速度（毫秒）
   _getSpeed(score) {
     const currentScore = score !== undefined ? score : this.data.score
-    if (currentScore >= 40) return 300
-    if (currentScore >= 30) return 350
-    if (currentScore >= 20) return 420
-    if (currentScore >= 10) return 500
-    return 600
+    if (currentScore >= 40) return 250
+    if (currentScore >= 30) return 300
+    if (currentScore >= 20) return 350
+    if (currentScore >= 10) return 400
+    return 500
   },
 
   startGame() {
@@ -63,26 +67,45 @@ Page({
       rows: rows,
       showEndModal: false,
       uploadResult: '',
+      offsetY: 0,
     })
+    // 启动卡农背景音乐
+    startBgm()
     this._startFalling()
   },
 
   _startFalling() {
     clearInterval(this._timer)
+    clearInterval(this._animationTimer)
+    
     this._currentSpeed = this._getSpeed()
-    this._timer = setInterval(() => {
-      this._fallDown()
-    }, this._currentSpeed)
+    
+    // 使用更短的动画帧来实现平滑流动
+    const stepsPerRow = 10 // 每行分成10步动画
+    const stepInterval = this._currentSpeed / stepsPerRow
+    const stepOffset = this._rowHeight / stepsPerRow
+    
+    let currentStep = 0
+    
+    this._animationTimer = setInterval(() => {
+      // 更新偏移量实现平滑动画
+      this.setData({ offsetY: this.data.offsetY + stepOffset })
+      currentStep++
+      
+      if (currentStep >= stepsPerRow) {
+        // 完成一行下落
+        currentStep = 0
+        this.setData({ offsetY: 0 })
+        this._fallDown()
+      }
+    }, stepInterval)
   },
 
   _updateSpeed(score) {
     const newSpeed = this._getSpeed(score)
     if (newSpeed !== this._currentSpeed) {
-      clearInterval(this._timer)
       this._currentSpeed = newSpeed
-      this._timer = setInterval(() => {
-        this._fallDown()
-      }, this._currentSpeed)
+      this._startFalling()
     }
   },
 
@@ -127,8 +150,12 @@ Page({
   },
 
   _gameOver() {
+    clearInterval(this._animationTimer)
+    this._animationTimer = null
     clearInterval(this._timer)
     this._timer = null
+    // 停止背景音乐
+    stopBgm()
     let bestScore = this.data.bestScore
     if (this.data.score > bestScore) {
       bestScore = this.data.score
@@ -138,6 +165,7 @@ Page({
       gameState: 'ended',
       bestScore: bestScore,
       showEndModal: true,
+      offsetY: 0,
     })
   },
 
@@ -177,6 +205,8 @@ Page({
   },
 
   onUnload() {
+    clearInterval(this._animationTimer)
     clearInterval(this._timer)
+    stopBgm()
   },
 })

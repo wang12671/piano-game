@@ -42,6 +42,14 @@
   width: 100%;
   flex: 1;
   overflow: hidden;
+  position: relative;
+}
+
+.game-rows-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  will-change: transform;
 }
 
 .game-row {
