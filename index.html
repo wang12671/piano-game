@@ -1,0 +1,2291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>生活效率工具箱</title>
+  <style>
+    :root {
+      --bg-primary: #f5f6f8;
+      --bg-card: #ffffff;
+      --text-primary: #2c3e50;
+      --text-secondary: #606f7b;
+      --border-color: #e8ecef;
+      --accent: #4a90d9;
+      --accent-hover: #3a7bc8;
+      --success: #27ae60;
+      --warning: #f39c12;
+      --danger: #e74c3c;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #1a1a2e;
+      --bg-card: #16213e;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a0a0a0;
+      --border-color: #2d3a4f;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .bg-decoration {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      opacity: 0.3;
+    }
+
+    .bg-decoration img {
+      position: absolute;
+    }
+
+    .bg-decoration .bg-1 {
+      top: -100px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+    }
+
+    .bg-decoration .bg-2 {
+      bottom: -80px;
+      left: -80px;
+      width: 350px;
+      height: 350px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 16px 48px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 28px 0 20px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .header-icon {
+      width: 48px;
+      height: 48px;
+    }
+
+    .theme-toggle {
+      width: 44px;
+      height: 24px;
+      background: var(--border-color);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+    }
+
+    .theme-toggle::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    [data-theme="dark"] .theme-toggle {
+      background: var(--accent);
+    }
+
+    [data-theme="dark"] .theme-toggle::after {
+      transform: translateX(20px);
+    }
+
+    .header h1 {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .header p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+
+    /* Tab Navigation */
+    .tab-nav {
+      display: flex;
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 6px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: fit-content;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    .tab-btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* Quick Access */
+    .quick-access {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .quick-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .quick-btn:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    /* Tool Container */
+    .tool-container {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tool-container.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card */
+    .card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title::before {
+      content: "";
+      width: 4px;
+      height: 15px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* Textarea & Input */
+    textarea, input[type="text"], input[type="number"], input[type="date"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 14px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+
+    textarea {
+      height: 120px;
+      resize: vertical;
+    }
+
+    textarea:focus, input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+    }
+
+    textarea::placeholder, input::placeholder {
+      color: #a0aec0;
+    }
+
+    .input-hint {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+
+    /* Settings Row */
+    .settings-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .setting-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .number-input {
+      width: 60px;
+      padding: 6px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 13px;
+      text-align: center;
+      background: var(--bg-primary);
+    }
+
+    /* Toggle */
+    .toggle-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 38px;
+      height: 20px;
+      background: #d1d5db;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle.active {
+      background: var(--accent);
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+
+    .toggle.active::after {
+      transform: translateX(18px);
+    }
+
+    .toggle-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    .btn-primary:disabled {
+      background: #a0aec0;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: #e8ecef;
+      color: var(--text-primary);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-icon {
+      padding: 5px 10px;
+      font-size: 11px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-icon:hover {
+      background: #e8ecef;
+      color: var(--text-primary);
+    }
+
+    .btn-icon svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* Result Area */
+    .result-card, .history-card {
+      display: none;
+    }
+
+    .result-card.show, .history-card.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .result-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .result-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .result-item {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 18px;
+      font-size: 14px;
+      font-weight: 500;
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.5); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Animation Area */
+    .animation-area {
+      text-align: center;
+      padding: 32px 16px;
+      display: none;
+    }
+
+    .animation-area.show {
+      display: block;
+    }
+
+    .rolling-text {
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--accent);
+      min-height: 40px;
+    }
+
+    .rolling-text span {
+      display: inline-block;
+      animation: roll 0.08s infinite;
+    }
+
+    @keyframes roll {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    /* History */
+    .history-empty {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .history-list {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      padding: 10px;
+      background: var(--bg-primary);
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+
+    .history-meta {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .history-names {
+      font-size: 13px;
+      word-break: break-all;
+    }
+
+    /* ============ TODO STYLES ============ */
+    .todo-input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .todo-input {
+      flex: 1;
+    }
+
+    .btn-add {
+      padding: 10px 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-add:active {
+      transform: scale(0.97);
+    }
+
+    .todo-stats {
+      display: flex;
+      gap: 16px;
+      padding: 12px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      margin-bottom: 14px;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .stat-value {
+      font-weight: 600;
+      min-width: 20px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .stat-value.changed {
+      transform: scale(1.3);
+      color: var(--accent);
+    }
+
+    .stat-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .stat-dot.pending { background: var(--warning); }
+    .stat-dot.done { background: var(--success); }
+
+    .todo-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      margin-bottom: 6px;
+      transition: all 0.2s;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .todo-item:hover {
+      background: #e8ecef;
+    }
+
+    [data-theme="dark"] .todo-item:hover {
+      background: #1e2a3d;
+    }
+
+    .todo-item.completed {
+      opacity: 0.6;
+    }
+
+    .todo-item.completed .todo-text {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+    }
+
+    .todo-checkbox {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border-color);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .todo-checkbox:hover {
+      border-color: var(--accent);
+    }
+
+    .todo-checkbox.checked {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .todo-checkbox.checked::after {
+      content: "";
+      width: 5px;
+      height: 9px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg) translateY(-1px);
+    }
+
+    .todo-text {
+      flex: 1;
+      font-size: 14px;
+      word-break: break-all;
+    }
+
+    .todo-actions {
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .todo-item:hover .todo-actions {
+      opacity: 1;
+    }
+
+    .todo-action-btn {
+      width: 26px;
+      height: 26px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .todo-action-btn:hover {
+      background: var(--bg-card);
+      color: var(--text-primary);
+    }
+
+    .todo-action-btn.delete:hover {
+      color: var(--danger);
+    }
+
+    .todo-action-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .todo-empty {
+      text-align: center;
+      padding: 28px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    /* ============ ACCOUNTING STYLES ============ */
+    .accounting-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .type-toggle {
+      display: flex;
+      gap: 8px;
+    }
+
+    .type-btn {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+    }
+
+    .type-btn.active {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+
+    .type-btn.expense.active {
+      background: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .accounting-list {
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .accounting-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      margin-bottom: 6px;
+      animation: slideIn 0.3s ease;
+    }
+
+    .accounting-item .type-badge {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .accounting-item .type-badge.income {
+      background: rgba(39, 174, 96, 0.15);
+      color: var(--success);
+    }
+
+    .accounting-item .type-badge.expense {
+      background: rgba(231, 76, 60, 0.15);
+      color: var(--danger);
+    }
+
+    .accounting-item .info {
+      flex: 1;
+    }
+
+    .accounting-item .amount {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .accounting-item .amount.income {
+      color: var(--success);
+    }
+
+    .accounting-item .amount.expense {
+      color: var(--danger);
+    }
+
+    .accounting-item .note {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .accounting-item .date {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .accounting-item .delete-btn {
+      width: 26px;
+      height: 26px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: all 0.2s;
+    }
+
+    .accounting-item:hover .delete-btn {
+      opacity: 1;
+    }
+
+    .accounting-item .delete-btn:hover {
+      color: var(--danger);
+      background: var(--bg-card);
+    }
+
+    .accounting-summary {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      margin-top: 14px;
+    }
+
+    .summary-item {
+      text-align: center;
+    }
+
+    .summary-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .summary-value {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .summary-value.income { color: var(--success); }
+    .summary-value.expense { color: var(--danger); }
+    .summary-value.balance { color: var(--accent); }
+
+    /* ============ STATS PANEL ============ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--accent);
+    }
+
+    .stat-card-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-card-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .chart-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .chart-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .chart-wrapper {
+      height: 140px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .bar {
+      width: 24px;
+      background: var(--accent);
+      border-radius: 4px 4px 0 0;
+      transition: height 0.5s ease;
+      position: relative;
+    }
+
+    .bar:hover {
+      background: var(--accent-hover);
+    }
+
+    .bar-label {
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .pie-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 140px;
+    }
+
+    .pie-chart {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      position: relative;
+      background: conic-gradient(
+        var(--success) 0deg,
+        var(--success) calc(var(--done-percent) * 3.6deg),
+        var(--warning) calc(var(--done-percent) * 3.6deg),
+        var(--warning) 360deg
+      );
+    }
+
+    .pie-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 70px;
+      height: 70px;
+      background: var(--bg-card);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pie-percent {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .pie-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .chart-legend {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ============ ABOUT / RESUME ============ */
+    .resume-header {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .resume-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #764ba2);
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: white;
+      font-weight: 600;
+    }
+
+    .resume-name {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .resume-title {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .resume-section {
+      margin-bottom: 20px;
+    }
+
+    .resume-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .resume-section-title::before {
+      content: "";
+      width: 3px;
+      height: 12px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .resume-text {
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--text-primary);
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .skill-tag {
+      padding: 4px 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .project-card {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .project-name {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .project-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .project-link {
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .project-link:hover {
+      text-decoration: underline;
+    }
+
+    .contact-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .contact-item {
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ============ DATA MANAGEMENT ============ */
+    .data-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .data-buttons .btn {
+      flex: none;
+      min-width: 120px;
+    }
+
+    /* ============ TOAST ============ */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: rgba(44, 62, 80, 0.95);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success {
+      background: rgba(39, 174, 96, 0.95);
+    }
+
+    .toast.error {
+      background: rgba(231, 76, 60, 0.95);
+    }
+
+    /* ============ LOADING ============ */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--bg-primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      transition: opacity 0.4s ease;
+    }
+
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 12px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 20px 0;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 0 12px 32px;
+      }
+
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .tab-btn span {
+        display: none;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .settings-row {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .todo-input-row {
+        flex-direction: column;
+      }
+
+      .btn-add {
+        width: 100%;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-container {
+        grid-template-columns: 1fr;
+      }
+
+      .accounting-form {
+        grid-template-columns: 1fr;
+      }
+
+      .data-buttons .btn {
+        width: 100%;
+      }
+
+      .bg-decoration {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">加载中...</div>
+  </div>
+
+  <!-- Background Decoration -->
+  <div class="bg-decoration">
+    <img class="bg-1" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=abstract%20soft%20gradient%20background%20illustration%20for%20productivity%20app%2C%20light%20pastel%20colors%20with%20subtle%20geometric%20shapes%2C%20minimalist%20office%20supplies%20silhouettes%2C%20clean%20and%20professional%20look&image_size=square" alt="">
+    <img class="bg-2" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=abstract%20minimalist%20toolbox%20icon%20illustration%20for%20efficiency%20app%2C%20simple%20line%20art%20with%20wrench%20and%20gear%20symbols%2C%20soft%20blue%20and%20gray%20tones%2C%20modern%20flat%20design%20style&image_size=square" alt="">
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-top">
+        <img class="header-icon" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=minimalist%20toolbox%20icon%20for%20productivity%20app%20header%2C%20simple%20line%20art%20with%20tools%2C%20blue%20and%20white%20color%20scheme%2C%20clean%20modern%20design&image_size=square_hd" alt="">
+        <div class="theme-toggle" id="themeToggle" title="切换主题"></div>
+      </div>
+      <h1>生活效率工具箱</h1>
+      <p>纯前端静态工具箱 · 支持 GitHub Pages</p>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="lottery">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 8v8M8 12h8"/>
+        </svg>
+        <span>随机抽奖</span>
+      </button>
+      <button class="tab-btn" data-tab="todo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        <span>清单工具</span>
+      </button>
+      <button class="tab-btn" data-tab="accounting">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+        <span>记账工具</span>
+      </button>
+      <button class="tab-btn" data-tab="about">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>关于我</span>
+      </button>
+    </nav>
+
+    <!-- Quick Access -->
+    <div class="quick-access" id="quickAccess"></div>
+
+    <!-- ========== LOTTERY TOOL ========== -->
+    <section class="tool-container active" id="lotteryTool">
+      <!-- Input -->
+      <div class="card">
+        <h2 class="card-title">输入名单</h2>
+        <textarea id="lotteryNames" placeholder="请输入抽奖名单，每行一个&#10;&#10;例如：&#10;张三&#10;李四&#10;王五"></textarea>
+        <p class="input-hint">支持粘贴批量名单，换行分隔</p>
+
+        <div class="settings-row">
+          <div class="setting-item">
+            <span class="setting-label">抽取人数</span>
+            <input type="number" id="lotteryCount" class="number-input" value="1" min="1">
+          </div>
+          <div class="setting-item toggle-wrapper">
+            <span class="toggle-label">允许重复</span>
+            <div id="lotteryRepeatToggle" class="toggle"></div>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" id="lotteryDrawBtn">开始抽奖</button>
+          <button class="btn btn-secondary" id="lotteryResetBtn">重置</button>
+        </div>
+      </div>
+
+      <!-- Animation -->
+      <div class="card animation-area" id="lotteryAnimation">
+        <div class="rolling-text" id="lotteryRolling"></div>
+      </div>
+
+      <!-- Result -->
+      <div class="card result-card" id="lotteryResult">
+        <div class="result-header">
+          <h3 class="result-title">中奖名单</h3>
+          <div class="result-actions">
+            <button class="btn-icon" id="lotteryCopyBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              复制
+            </button>
+          </div>
+        </div>
+        <div class="result-list" id="lotteryResultList"></div>
+      </div>
+
+      <!-- History -->
+      <div class="card history-card" id="lotteryHistory">
+        <div class="result-header">
+          <h3 class="history-title">历史记录</h3>
+          <button class="btn-icon" id="lotteryClearHistory">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            清空
+          </button>
+        </div>
+        <div class="history-list" id="lotteryHistoryList"><div class="history-empty">暂无历史记录</div></div>
+      </div>
+    </section>
+
+    <!-- ========== TODO TOOL ========== -->
+    <section class="tool-container" id="todoTool">
+      <div class="card">
+        <h2 class="card-title">添加待办</h2>
+        <div class="todo-input-row">
+          <input type="text" class="todo-input" id="todoInput" placeholder="输入待办事项，按 Enter 添加">
+          <button class="btn-add" id="todoAddBtn">添加</button>
+        </div>
+        <div class="settings-row">
+          <div class="setting-item">
+            <button class="btn-icon" id="todoImportBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              导入
+            </button>
+          </div>
+          <div class="setting-item">
+            <button class="btn-icon" id="todoExportBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              导出
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="todo-stats">
+          <div class="stat-item">
+            <span class="stat-dot pending"></span>
+            <span>待完成</span>
+            <span class="stat-value" id="todoPendingCount">0</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-dot done"></span>
+            <span>已完成</span>
+            <span class="stat-value" id="todoDoneCount">0</span>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" id="todoClearDoneBtn">清除已完成</button>
+          <button class="btn btn-danger" id="todoClearAllBtn">清空全部</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">待办列表</h2>
+        <div class="todo-list" id="todoList">
+          <div class="todo-empty">暂无待办事项</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== ACCOUNTING TOOL ========== -->
+    <section class="tool-container" id="accountingTool">
+      <div class="card">
+        <h2 class="card-title">添加记录</h2>
+        <div class="accounting-form">
+          <div class="form-group">
+            <label class="form-label">类型</label>
+            <div class="type-toggle">
+              <button class="type-btn income active" data-type="income">收入</button>
+              <button class="type-btn expense" data-type="expense">支出</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">金额</label>
+            <input type="number" id="accAmount" placeholder="0.00" min="0" step="0.01">
+          </div>
+          <div class="form-group">
+            <label class="form-label">分类</label>
+            <input type="text" id="accCategory" placeholder="如：工资、餐饮">
+          </div>
+          <div class="form-group">
+            <label class="form-label">日期</label>
+            <input type="date" id="accDate">
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">备注</label>
+            <input type="text" id="accNote" placeholder="可选备注">
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="accAddBtn">添加记录</button>
+          <button class="btn btn-secondary" id="accClearBtn">清空</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="accounting-summary">
+          <div class="summary-item">
+            <div class="summary-label">总收入</div>
+            <div class="summary-value income" id="totalIncome">¥0</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">总支出</div>
+            <div class="summary-value expense" id="totalExpense">¥0</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">结余</div>
+            <div class="summary-value balance" id="totalBalance">¥0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="result-header">
+          <h3 class="result-title">账单记录</h3>
+          <button class="btn-icon" id="accExportBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            导出
+          </button>
+        </div>
+        <div class="accounting-list" id="accList">
+          <div class="history-empty">暂无账单记录</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== ABOUT / RESUME ========== -->
+    <section class="tool-container" id="aboutTool">
+      <div class="card">
+        <div class="resume-header">
+          <div class="resume-avatar">作</div>
+          <h2 class="resume-name">您的姓名</h2>
+          <p class="resume-title">前端开发 / 全栈工程师</p>
+        </div>
+
+        <div class="resume-section">
+          <h3 class="resume-section-title">个人介绍</h3>
+          <p class="resume-text">
+            热爱前端技术，专注于构建简洁高效的 Web 应用。熟悉现代前端框架，
+            追求优雅代码和优秀用户体验。具有较强的学习能力和问题解决能力，
+            善于团队协作与沟通。
+          </p>
+        </div>
+
+        <div class="resume-section">
+          <h3 class="resume-section-title">技能栈</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">HTML/CSS</span>
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">Vue.js</span>
+            <span class="skill-tag">React</span>
+            <span class="skill-tag">Node.js</span>
+            <span class="skill-tag">Git</span>
+            <span class="skill-tag">Webpack</span>
+            <span class="skill-tag">CSS3</span>
+          </div>
+        </div>
+
+        <div class="resume-section">
+          <h3 class="resume-section-title">项目经历</h3>
+          <div class="project-card">
+            <div class="project-name">生活效率工具箱</div>
+            <div class="project-desc">纯前端静态多工具网站，包含抽奖、待办、记账功能，支持数据持久化和导入导出。</div>
+            <a class="project-link" href="#">在线访问</a>
+          </div>
+          <div class="project-card">
+            <div class="project-name">校园二手交易平台</div>
+            <div class="project-desc">基于微信小程序开发的校园二手交易平台，支持商品发布、搜索、收藏等功能。</div>
+            <a class="project-link" href="#">在线访问</a>
+          </div>
+        </div>
+
+        <div class="resume-section">
+          <h3 class="resume-section-title">联系方式</h3>
+          <div class="contact-list">
+            <span class="contact-item">📧 email@example.com</span>
+            <span class="contact-item">📱 138-0000-0000</span>
+            <span class="contact-item">🌐 github.com/username</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== STATS PANEL ========== -->
+    <section class="tool-container" id="statsTool">
+      <div class="card">
+        <h2 class="card-title">使用统计</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-value" id="statsLottery">0</div>
+            <div class="stat-card-label">抽奖次数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="statsTodo">0</div>
+            <div class="stat-card-label">待办总数</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="statsAccounting">0</div>
+            <div class="stat-card-label">账单记录</div>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <div class="chart-card">
+            <div class="chart-title">待办完成率</div>
+            <div class="pie-wrapper">
+              <div class="pie-chart" id="todoPieChart">
+                <div class="pie-center">
+                  <span class="pie-percent" id="todoPercent">0%</span>
+                  <span class="pie-label">完成</span>
+                </div>
+              </div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item"><span class="legend-dot" style="background:var(--success)"></span>已完成</div>
+              <div class="legend-item"><span class="legend-dot" style="background:var(--warning)"></span>待完成</div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-title">月度收支</div>
+            <div class="chart-wrapper" id="monthlyChart"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== DATA MANAGEMENT ========== -->
+    <section class="tool-container" id="dataTool">
+      <div class="card">
+        <h2 class="card-title">数据管理</h2>
+        <p class="input-hint" style="margin-bottom:14px">导出或导入全部工具数据，实现跨设备同步</p>
+        <div class="data-buttons">
+          <button class="btn btn-primary" id="exportAllBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            导出全部数据
+          </button>
+          <button class="btn btn-secondary" id="importBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            导入数据
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      纯静态页面 · 无后端依赖 · 支持 GitHub Pages 部署 · Ctrl+Enter 快捷操作
+    </footer>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Hidden file input -->
+  <input type="file" id="fileInput" accept=".json,.csv,.txt" style="display:none">
+
+  <script>
+    // ============ GLOBAL STATE ============
+    let currentTab = 'lottery';
+    let currentAccType = 'income';
+    let recentTools = [];
+
+    // ============ GLOBAL DATA ============
+    const globalData = {
+      lottery: { drawnNames: [], history: [], totalDraws: 0 },
+      todo: { todos: [], nextId: 1 },
+      accounting: { records: [] },
+      stats: { lotteryDraws: 0, todoTotal: 0, accountingCount: 0 },
+      recentTools: []
+    };
+
+    // ============ TOAST ============
+    function showToast(message, type = 'default') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast show' + (type !== 'default' ? ' ' + type : '');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // ============ LOADING ============
+    window.addEventListener('load', () => {
+      loadTheme();
+      loadAllData();
+      setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 500);
+    });
+
+    // ============ THEME ============
+    function loadTheme() {
+      const theme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+
+    // ============ DATA PERSISTENCE ============
+    function saveAllData() {
+      localStorage.setItem('toolboxData', JSON.stringify(globalData));
+    }
+
+    function loadAllData() {
+      const saved = localStorage.getItem('toolboxData');
+      if (saved) {
+        const data = JSON.parse(saved);
+        Object.assign(globalData, data);
+      }
+      recentTools = globalData.recentTools || [];
+      renderQuickAccess();
+      renderTodoList();
+      renderAccountingList();
+      renderStats();
+      renderMonthlyChart();
+    }
+
+    // ============ TAB NAVIGATION ============
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        if (tab === currentTab) return;
+        
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        document.querySelectorAll('.tool-container').forEach(c => c.classList.remove('active'));
+        document.getElementById(tab + 'Tool').classList.add('active');
+        
+        currentTab = tab;
+        addToRecent(tab);
+      });
+    });
+
+    // ============ QUICK ACCESS ============
+    function addToRecent(tab) {
+      if (['lottery', 'todo', 'accounting'].includes(tab)) {
+        recentTools = recentTools.filter(t => t !== tab);
+        recentTools.unshift(tab);
+        recentTools = recentTools.slice(0, 3);
+        globalData.recentTools = recentTools;
+        saveAllData();
+        renderQuickAccess();
+      }
+    }
+
+    function renderQuickAccess() {
+      const quickAccess = document.getElementById('quickAccess');
+      if (recentTools.length === 0) {
+        quickAccess.innerHTML = '';
+        return;
+      }
+      const labels = { lottery: '🎰 抽奖', todo: '📋 待办', accounting: '💰 记账' };
+      quickAccess.innerHTML = recentTools.map(tab =>
+        `<button class="quick-btn" onclick="switchTo('${tab}')">${labels[tab]}</button>`
+      ).join('');
+    }
+
+    function switchTo(tab) {
+      document.querySelector(`[data-tab="${tab}"]`).click();
+    }
+
+    // ============ ANIMATE STAT VALUE ============
+    function animateStatValue(el) {
+      el.classList.add('changed');
+      setTimeout(() => el.classList.remove('changed'), 300);
+    }
+
+    // ============ LOTTERY TOOL ============
+    const lE = {
+      names: document.getElementById('lotteryNames'),
+      count: document.getElementById('lotteryCount'),
+      repeat: document.getElementById('lotteryRepeatToggle'),
+      drawBtn: document.getElementById('lotteryDrawBtn'),
+      resetBtn: document.getElementById('lotteryResetBtn'),
+      animation: document.getElementById('lotteryAnimation'),
+      rolling: document.getElementById('lotteryRolling'),
+      result: document.getElementById('lotteryResult'),
+      resultList: document.getElementById('lotteryResultList'),
+      copyBtn: document.getElementById('lotteryCopyBtn'),
+      history: document.getElementById('lotteryHistory'),
+      historyList: document.getElementById('lotteryHistoryList'),
+      clearHistory: document.getElementById('lotteryClearHistory')
+    };
+
+    lE.repeat.addEventListener('click', () => lE.repeat.classList.toggle('active'));
+
+    function parseLotteryNames() {
+      const text = lE.names.value.trim();
+      if (!text) return [];
+      return text.split(/\n/).map(n => n.trim()).filter(n => n);
+    }
+
+    async function lotteryDraw() {
+      const allNames = parseLotteryNames();
+      const count = parseInt(lE.count.value) || 1;
+      const allowRepeat = lE.repeat.classList.contains('active');
+
+      if (allNames.length === 0) { showToast('请输入抽奖名单', 'error'); return; }
+      if (count < 1) { showToast('抽取人数必须大于0', 'error'); return; }
+      if (!allowRepeat && count > allNames.length) { showToast(`名单共${allNames.length}人，无法抽取${count}人`, 'error'); return; }
+      if (!allowRepeat && globalData.lottery.drawnNames.length >= allNames.length) { showToast('所有人员已抽取完毕', 'error'); return; }
+      if (!allowRepeat && count > (allNames.length - globalData.lottery.drawnNames.length)) { showToast(`剩余可抽人员不足`, 'error'); return; }
+
+      lE.drawBtn.disabled = true;
+      lE.result.classList.remove('show');
+      lE.animation.classList.add('show');
+
+      let available = allowRepeat ? allNames : allNames.filter(n => !globalData.lottery.drawnNames.includes(n));
+      const duration = 2000;
+      const startTime = Date.now();
+
+      await new Promise(resolve => {
+        function animate() {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const displayCount = Math.max(1, Math.floor(3 * (1 - progress) + 1));
+          const displayed = [];
+          for (let i = 0; i < displayCount; i++) {
+            displayed.push(available[Math.floor(Math.random() * available.length)]);
+          }
+          lE.rolling.innerHTML = displayed.map(n => `<span>${n}</span>`).join('&nbsp;&nbsp;');
+
+          if (progress < 1) {
+            setTimeout(animate, 80 * (1 - progress * 0.5));
+          } else {
+            const winners = [];
+            const temp = [...available];
+            for (let i = 0; i < count; i++) {
+              winners.push(temp.splice(Math.floor(Math.random() * temp.length), 1)[0]);
+            }
+            if (!allowRepeat) globalData.lottery.drawnNames.push(...winners);
+            globalData.lottery.totalDraws++;
+            globalData.stats.lotteryDraws++;
+            saveAllData();
+
+            lE.animation.classList.remove('show');
+            showLotteryResults(winners);
+            addLotteryHistory(winners, allowRepeat);
+            lE.drawBtn.disabled = false;
+            resolve();
+          }
+        }
+        animate();
+      });
+    }
+
+    function showLotteryResults(winners) {
+      lE.resultList.innerHTML = winners.map((n, i) =>
+        `<div class="result-item" style="animation-delay:${i*0.1}s">${n}</div>`
+      ).join('');
+      lE.result.classList.add('show');
+      lE.history.classList.add('show');
+    }
+
+    function addLotteryHistory(winners, allowRepeat) {
+      globalData.lottery.history.unshift({
+        time: new Date().toLocaleString('zh-CN'),
+        names: [...winners],
+        mode: allowRepeat ? '重复' : '不重复'
+      });
+      globalData.lottery.history = globalData.lottery.history.slice(0, 50);
+      saveAllData();
+      renderLotteryHistory();
+    }
+
+    function renderLotteryHistory() {
+      if (globalData.lottery.history.length === 0) {
+        lE.historyList.innerHTML = '<div class="history-empty">暂无历史记录</div>';
+        return;
+      }
+      lE.historyList.innerHTML = globalData.lottery.history.map((e, i) =>
+        `<div class="history-item">
+          <div class="history-meta">第${globalData.lottery.history.length - i}轮 · ${e.time} · ${e.mode}</div>
+          <div class="history-names">${e.names.join('、')}</div>
+        </div>`
+      ).join('');
+    }
+
+    lE.copyBtn.addEventListener('click', () => {
+      const names = globalData.lottery.history[0]?.names || [];
+      navigator.clipboard.writeText(names.join('\n')).then(() => showToast('已复制', 'success'));
+    });
+
+    lE.clearHistory.addEventListener('click', () => {
+      globalData.lottery.history = [];
+      globalData.lottery.drawnNames = [];
+      saveAllData();
+      renderLotteryHistory();
+      showToast('已清空', 'success');
+    });
+
+    lE.resetBtn.addEventListener('click', () => {
+      globalData.lottery.drawnNames = [];
+      globalData.lottery.history = [];
+      lE.names.value = '';
+      lE.count.value = '1';
+      lE.repeat.classList.remove('active');
+      lE.result.classList.remove('show');
+      lE.history.classList.remove('show');
+      saveAllData();
+      showToast('已重置', 'success');
+    });
+
+    lE.drawBtn.addEventListener('click', lotteryDraw);
+    lE.names.addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) lotteryDraw(); });
+
+    // ============ TODO TOOL ============
+    const tE = {
+      input: document.getElementById('todoInput'),
+      addBtn: document.getElementById('todoAddBtn'),
+      list: document.getElementById('todoList'),
+      pending: document.getElementById('todoPendingCount'),
+      done: document.getElementById('todoDoneCount'),
+      clearDone: document.getElementById('todoClearDoneBtn'),
+      clearAll: document.getElementById('todoClearAllBtn'),
+      importBtn: document.getElementById('todoImportBtn'),
+      exportBtn: document.getElementById('todoExportBtn')
+    };
+
+    function escapeHtml(text) {
+      const d = document.createElement('div');
+      d.textContent = text;
+      return d.innerHTML;
+    }
+
+    function renderTodoList() {
+      if (globalData.todo.todos.length === 0) {
+        tE.list.innerHTML = '<div class="todo-empty">暂无待办事项</div>';
+      } else {
+        tE.list.innerHTML = globalData.todo.todos.map(t =>
+          `<div class="todo-item ${t.completed ? 'completed' : ''}" data-id="${t.id}">
+            <div class="todo-checkbox ${t.completed ? 'checked' : ''}" data-action="toggle"></div>
+            <span class="todo-text">${escapeHtml(t.text)}</span>
+            <div class="todo-actions">
+              <button class="todo-action-btn delete" data-action="delete" title="删除">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>`
+        ).join('');
+      }
+      updateTodoStats();
+      saveAllData();
+    }
+
+    function updateTodoStats() {
+      const pending = globalData.todo.todos.filter(t => !t.completed).length;
+      const done = globalData.todo.todos.filter(t => t.completed).length;
+      const prevP = parseInt(tE.pending.textContent);
+      const prevD = parseInt(tE.done.textContent);
+      
+      tE.pending.textContent = pending;
+      tE.done.textContent = done;
+      
+      if (prevP !== pending) animateStatValue(tE.pending);
+      if (prevD !== done) animateStatValue(tE.done);
+      
+      globalData.stats.todoTotal = globalData.todo.todos.length;
+      saveAllData();
+    }
+
+    function addTodo(text) {
+      if (!text.trim()) { showToast('请输入内容', 'error'); return; }
+      globalData.todo.todos.push({ id: globalData.todo.nextId++, text: text.trim(), completed: false });
+      renderTodoList();
+      showToast('已添加', 'success');
+    }
+
+    function toggleTodo(id) {
+      const t = globalData.todo.todos.find(t => t.id === id);
+      if (t) { t.completed = !t.completed; renderTodoList(); if (t.completed) showToast('已完成', 'success'); }
+    }
+
+    function deleteTodo(id) {
+      globalData.todo.todos = globalData.todo.todos.filter(t => t.id !== id);
+      renderTodoList();
+      showToast('已删除', 'success');
+    }
+
+    tE.addBtn.addEventListener('click', () => addTodo(tE.input.value));
+    tE.input.addEventListener('keydown', e => { if (e.key === 'Enter') { addTodo(tE.input.value); tE.input.value = ''; } });
+
+    tE.list.addEventListener('click', e => {
+      const item = e.target.closest('.todo-item');
+      if (!item) return;
+      const id = parseInt(item.dataset.id);
+      const action = e.target.closest('[data-action]')?.dataset.action;
+      if (action === 'toggle') toggleTodo(id);
+      if (action === 'delete') deleteTodo(id);
+    });
+
+    tE.clearDone.addEventListener('click', () => {
+      const before = globalData.todo.todos.filter(t => t.completed).length;
+      globalData.todo.todos = globalData.todo.todos.filter(t => !t.completed);
+      renderTodoList();
+      showToast(before > 0 ? `已清除${before}项` : '无已完成项', before > 0 ? 'success' : 'error');
+    });
+
+    tE.clearAll.addEventListener('click', () => {
+      if (globalData.todo.todos.length === 0) { showToast('清单已空', 'error'); return; }
+      globalData.todo.todos = [];
+      globalData.todo.nextId = 1;
+      renderTodoList();
+      showToast('已清空', 'success');
+    });
+
+    // Import/Export Todo
+    const fileInput = document.getElementById('fileInput');
+    tE.importBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', e => {
+      if (!e.target.files[0]) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const lines = ev.target.result.split(/\n/).map(l => l.trim()).filter(l => l);
+        let added = 0;
+        lines.forEach(line => {
+          if (!line.toLowerCase().includes('待办') && !line.toLowerCase().includes('内容')) {
+            globalData.todo.todos.push({ id: globalData.todo.nextId++, text: line.replace(/^"|"$/g, ''), completed: false });
+            added++;
+          }
+        });
+        renderTodoList();
+        showToast(`已导入${added}项`, 'success');
+      };
+      reader.readAsText(e.target.files[0]);
+      e.target.value = '';
+    });
+
+    tE.exportBtn.addEventListener('click', () => {
+      if (globalData.todo.todos.length === 0) { showToast('无数据可导出', 'error'); return; }
+      let csv = '\uFEFF状态,内容\n';
+      globalData.todo.todos.forEach(t => csv += `"${t.completed ? '已完成' : '待办'}","${t.text}"\n`);
+      downloadFile(csv, 'todo_list.csv', 'text/csv;charset=utf-8');
+      showToast('已导出', 'success');
+    });
+
+    // ============ ACCOUNTING TOOL ============
+    const aE = {
+      amount: document.getElementById('accAmount'),
+      category: document.getElementById('accCategory'),
+      date: document.getElementById('accDate'),
+      note: document.getElementById('accNote'),
+      addBtn: document.getElementById('accAddBtn'),
+      clearBtn: document.getElementById('accClearBtn'),
+      list: document.getElementById('accList'),
+      totalIncome: document.getElementById('totalIncome'),
+      totalExpense: document.getElementById('totalExpense'),
+      totalBalance: document.getElementById('totalBalance'),
+      exportBtn: document.getElementById('accExportBtn')
+    };
+
+    // Set default date to today
+    aE.date.value = new Date().toISOString().split('T')[0];
+
+    document.querySelectorAll('.type-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentAccType = btn.dataset.type;
+      });
+    });
+
+    function renderAccountingList() {
+      if (globalData.accounting.records.length === 0) {
+        aE.list.innerHTML = '<div class="history-empty">暂无账单记录</div>';
+      } else {
+        aE.list.innerHTML = globalData.accounting.records.map(r =>
+          `<div class="accounting-item" data-id="${r.id}">
+            <span class="type-badge ${r.type}">${r.type === 'income' ? '收入' : '支出'}</span>
+            <div class="info">
+              <div class="amount ${r.type}">${r.type === 'income' ? '+' : '-'}¥${r.amount.toFixed(2)}</div>
+              <div class="note">${escapeHtml(r.category)} ${r.note ? '· ' + escapeHtml(r.note) : ''}</div>
+            </div>
+            <div class="date">${r.date}</div>
+            <button class="delete-btn" data-action="delete">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>`
+        ).join('');
+      }
+      updateAccountingSummary();
+      saveAllData();
+    }
+
+    function updateAccountingSummary() {
+      const income = globalData.accounting.records.filter(r => r.type === 'income').reduce((s, r) => s + r.amount, 0);
+      const expense = globalData.accounting.records.filter(r => r.type === 'expense').reduce((s, r) => s + r.amount, 0);
+      aE.totalIncome.textContent = `¥${income.toFixed(2)}`;
+      aE.totalExpense.textContent = `¥${expense.toFixed(2)}`;
+      aE.totalBalance.textContent = `¥${(income - expense).toFixed(2)}`;
+      
+      globalData.stats.accountingCount = globalData.accounting.records.length;
+      saveAllData();
+    }
+
+    function addAccounting() {
+      const amount = parseFloat(aE.amount.value);
+      if (!amount || amount <= 0) { showToast('请输入有效金额', 'error'); return; }
+      if (!aE.category.value.trim()) { showToast('请输入分类', 'error'); return; }
+      if (!aE.date.value) { showToast('请选择日期', 'error'); return; }
+
+      globalData.accounting.records.push({
+        id: Date.now(),
+        type: currentAccType,
+        amount: amount,
+        category: aE.category.value.trim(),
+        date: aE.date.value,
+        note: aE.note.value.trim()
+      });
+      
+      aE.amount.value = '';
+      aE.category.value = '';
+      aE.note.value = '';
+      aE.date.value = new Date().toISOString().split('T')[0];
+      
+      renderAccountingList();
+      renderMonthlyChart();
+      showToast('已添加', 'success');
+    }
+
+    function deleteAccounting(id) {
+      globalData.accounting.records = globalData.accounting.records.filter(r => r.id !== id);
+      renderAccountingList();
+      renderMonthlyChart();
+      showToast('已删除', 'success');
+    }
+
+    aE.addBtn.addEventListener('click', addAccounting);
+    aE.clearBtn.addEventListener('click', () => {
+      if (globalData.accounting.records.length === 0) { showToast('无记录', 'error'); return; }
+      globalData.accounting.records = [];
+      renderAccountingList();
+      renderMonthlyChart();
+      showToast('已清空', 'success');
+    });
+
+    aE.list.addEventListener('click', e => {
+      const btn = e.target.closest('.delete-btn');
+      if (btn) {
+        const item = btn.closest('.accounting-item');
+        deleteAccounting(parseInt(item.dataset.id));
+      }
+    });
+
+    aE.exportBtn.addEventListener('click', () => {
+      if (globalData.accounting.records.length === 0) { showToast('无数据可导出', 'error'); return; }
+      let csv = '\uFEFF日期,类型,分类,金额,备注\n';
+      globalData.accounting.records.forEach(r => {
+        csv += `"${r.date}","${r.type === 'income' ? '收入' : '支出'}","${r.category}","${r.amount}","${r.note}"\n`;
+      });
+      downloadFile(csv, 'accounting_records.csv', 'text/csv;charset=utf-8');
+      showToast('已导出', 'success');
+    });
+
+    // ============ STATS ============
+    function renderStats() {
+      document.getElementById('statsLottery').textContent = globalData.stats.lotteryDraws;
+      document.getElementById('statsTodo').textContent = globalData.stats.todoTotal;
+      document.getElementById('statsAccounting').textContent = globalData.stats.accountingCount;
+
+      const todos = globalData.todo.todos;
+      const done = todos.filter(t => t.completed).length;
+      const total = todos.length;
+      const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+
+      document.getElementById('todoPieChart').style.setProperty('--done-percent', percent);
+      document.getElementById('todoPercent').textContent = percent + '%';
+    }
+
+    function renderMonthlyChart() {
+      const wrapper = document.getElementById('monthlyChart');
+      const months = {};
+      const now = new Date();
+      
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        months[key] = { income: 0, expense: 0, label: `${d.getMonth() + 1}月` };
+      }
+
+      globalData.accounting.records.forEach(r => {
+        const key = r.date.substring(0, 7);
+        if (months[key]) {
+          months[key][r.type] += r.amount;
+        }
+      });
+
+      const values = Object.values(months);
+      const max = Math.max(...values.map(v => Math.max(v.income, v.expense)), 1);
+      
+      wrapper.innerHTML = values.map(m => {
+        const incomeH = (m.income / max) * 100;
+        const expenseH = (m.expense / max) * 100;
+        return `<div class="bar" style="height:${Math.max(incomeH, expenseH)}%">
+          <span class="bar-label">${m.label}</span>
+        </div>`;
+      }).join('');
+    }
+
+    // ============ GLOBAL IMPORT/EXPORT ============
+    document.getElementById('exportAllBtn').addEventListener('click', () => {
+      const json = JSON.stringify(globalData, null, 2);
+      downloadFile(json, `toolbox_backup_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
+      showToast('数据已导出', 'success');
+    });
+
+    document.getElementById('importBtn').addEventListener('click', () => fileInput.click());
+    
+    fileInput.addEventListener('change', e => {
+      if (!e.target.files[0]) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (data.lottery && data.todo && data.accounting) {
+            Object.assign(globalData, data);
+            saveAllData();
+            renderTodoList();
+            renderAccountingList();
+            renderStats();
+            renderMonthlyChart();
+            showToast('数据已恢复', 'success');
+          } else {
+            showToast('文件格式错误', 'error');
+          }
+        } catch (err) {
+          showToast('文件解析失败', 'error');
+        }
+      };
+      reader.readAsText(e.target.files[0]);
+      e.target.value = '';
+    });
+
+    // ============ DOWNLOAD HELPER ============
+    function downloadFile(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ============ GLOBAL SHORTCUTS ============
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        if (currentTab === 'lottery') lotteryDraw();
+        if (currentTab === 'todo') { addTodo(tE.input.value); tE.input.value = ''; }
+      }
+    });
+  </script>
+</body>
+</html>
