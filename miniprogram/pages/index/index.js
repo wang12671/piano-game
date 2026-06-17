@@ -8,25 +8,19 @@ Page({
     rows: [],
     showEndModal: false,
     uploadResult: '',
-    offsetY: 0, // 用于平滑动画
   },
 
   _timer: null,
-  _animationTimer: null,
   _rowHeight: 0,
-  _visibleRows: 6,
-  _totalRows: 7,
-  _currentSpeed: 600,
-  _animationInterval: 16, // 约60fps的动画帧率
+  _visibleRows: 8, // 增加可见行数，确保黑块有充足下滑行程
+  _totalRows: 10, // 总行数增加，黑块从顶部生成
+  _currentSpeed: 800, // 初始速度平缓
 
   onLoad() {
     const bestScore = wx.getStorageSync('bestScore') || 0
     this.setData({ bestScore })
-    // 获取屏幕信息计算行高
     const sysInfo = wx.getSystemInfoSync()
-    // 游戏区域高度约为屏幕高度的70%
-    this._rowHeight = Math.floor(sysInfo.windowHeight * 0.7 / this._visibleRows)
-    this._gameAreaHeight = Math.floor(sysInfo.windowHeight * 0.7)
+    this._rowHeight = Math.floor(sysInfo.windowHeight * 0.65 / this._visibleRows)
   },
 
   // 生成新行（1个黑块，位置随机）
@@ -36,12 +30,12 @@ Page({
     return { blocks, hits: [false, false, false, false] }
   },
 
-  // 初始化游戏行 - 黑块均匀分布在棋盘中上至中部区域
+  // 初始化游戏行 - 黑块从顶部区域生成，拥有充足下滑行程
   _initRows() {
     const rows = []
     for (let i = 0; i < this._totalRows; i++) {
-      // 最底部2行不生成黑块，预留充足可点击空间
-      if (i >= this._totalRows - 2) {
+      // 最底部3行不生成黑块，预留充足可点击空间
+      if (i >= this._totalRows - 3) {
         rows.push({ blocks: [0, 0, 0, 0], hits: [false, false, false, false] })
       } else {
         rows.push(this._generateRow())
@@ -51,12 +45,11 @@ Page({
   },
 
   // 获取当前速度（毫秒）
-  // 初始速度800ms（平缓），每10分速度减少40ms（线性加快），最低100ms
+  // 初始速度800ms（平缓），每10分速度减少40ms（线性加快），最低120ms
   _getSpeed(score) {
     const currentScore = score !== undefined ? score : this.data.score
     const newSpeed = 800 - Math.floor(currentScore / 10) * 40
-    // 最低速度为100ms，确保游戏可玩性，不会秒结束
-    return Math.max(newSpeed, 100)
+    return Math.max(newSpeed, 120)
   },
 
   startGame() {
@@ -67,38 +60,18 @@ Page({
       rows: rows,
       showEndModal: false,
       uploadResult: '',
-      offsetY: 0,
     })
-    // 启动卡农背景音乐
     startBgm()
     this._startFalling()
   },
 
   _startFalling() {
     clearInterval(this._timer)
-    clearInterval(this._animationTimer)
-    
     this._currentSpeed = this._getSpeed()
-    
-    // 使用更短的动画帧来实现平滑流动
-    const stepsPerRow = 10 // 每行分成10步动画
-    const stepInterval = this._currentSpeed / stepsPerRow
-    const stepOffset = this._rowHeight / stepsPerRow
-    
-    let currentStep = 0
-    
-    this._animationTimer = setInterval(() => {
-      // 更新偏移量实现平滑动画
-      this.setData({ offsetY: this.data.offsetY + stepOffset })
-      currentStep++
-      
-      if (currentStep >= stepsPerRow) {
-        // 完成一行下落
-        currentStep = 0
-        this.setData({ offsetY: 0 })
-        this._fallDown()
-      }
-    }, stepInterval)
+    // 简单定时器，黑块从顶部生成，直接下落
+    this._timer = setInterval(() => {
+      this._fallDown()
+    }, this._currentSpeed)
   },
 
   _updateSpeed(score) {
@@ -114,11 +87,10 @@ Page({
     // 检查最底行是否有未点击的黑块
     const bottomRow = rows[rows.length - 1]
     if (bottomRow.blocks.includes(1)) {
-      // 有黑块未被点击，游戏结束
       this._gameOver()
       return
     }
-    // 移除最底行，顶部添加新行
+    // 移除最底行，顶部添加新行（黑块从顶部生成）
     rows.pop()
     rows.unshift(this._generateRow())
     this.setData({ rows })
@@ -127,7 +99,6 @@ Page({
   onTileTap(e) {
     if (this.data.gameState !== 'playing') return
 
-    // 直接从事件参数获取行列信息，即时响应无延迟
     const row = parseInt(e.currentTarget.dataset.row)
     const col = parseInt(e.currentTarget.dataset.col)
 
@@ -138,9 +109,9 @@ Page({
       // 点击黑块 - 即时得分，同步播放卡农音符
       playNote(col)
       let rows = this.data.rows.slice()
-      // 即时触发金色粒子高光反馈
+      // 即时触发金色粒子高光反馈（仅方块内部）
       rows[row].hits[col] = true
-      rows[row].blocks[col] = 0 // 立即移除黑块，无延迟
+      rows[row].blocks[col] = 0
       const newScore = this.data.score + 1
       this.setData({ rows, score: newScore })
       // 120ms后清除粒子动画
@@ -148,20 +119,15 @@ Page({
         rows[row].hits[col] = false
         this.setData({ rows })
       }, 120)
-      // 线性加速 - 只有速度变化时才重建定时器
       this._updateSpeed(newScore)
     } else {
-      // 点击白块 - 游戏结束
       this._gameOver()
     }
   },
 
   _gameOver() {
-    clearInterval(this._animationTimer)
-    this._animationTimer = null
     clearInterval(this._timer)
     this._timer = null
-    // 停止背景音乐
     stopBgm()
     let bestScore = this.data.bestScore
     if (this.data.score > bestScore) {
@@ -172,7 +138,6 @@ Page({
       gameState: 'ended',
       bestScore: bestScore,
       showEndModal: true,
-      offsetY: 0,
     })
   },
 
@@ -212,7 +177,6 @@ Page({
   },
 
   onUnload() {
-    clearInterval(this._animationTimer)
     clearInterval(this._timer)
     stopBgm()
   },

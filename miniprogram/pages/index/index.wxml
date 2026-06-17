@@ -11,9 +11,9 @@
     </view>
   </view>
 
-  <!-- 游戏区域 -->
+  <!-- 游戏区域 - 全程稳定静止，无抖动晃动 -->
   <view class="game-area">
-    <view class="game-rows-wrapper" style="transform: translateY({{offsetY}}px);">
+    <view class="game-rows-wrapper">
       <view class="game-row" wx:for="{{rows}}" wx:key="index" wx:for-item="row">
         <view class="tile {{row.blocks[index2] === 1 ? 'tile-black' : 'tile-white'}} {{row.hits[index2] ? 'tile-hit' : ''}}" 
               wx:for="{{row.blocks}}" wx:key="index2" wx:for-item="block" wx:for-index="index2"

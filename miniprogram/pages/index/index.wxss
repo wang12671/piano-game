@@ -91,10 +91,12 @@
   flex: 1;
   overflow: hidden;
   position: relative;
-  padding: 20rpx;
+  padding: 16rpx;
   box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(10, 10, 20, 0.95), rgba(5, 5, 15, 1));
 }
 
+/* 棋盘容器 - 全程稳定静止，无抖动晃动 */
 .game-rows-wrapper {
   position: absolute;
   top: 0;
@@ -104,23 +106,77 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 116.67%;
-  will-change: transform;
-  border-radius: 16rpx;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.05);
+  height: 100%;
+  border-radius: 12rpx;
+  box-shadow: 
+    0 0 30rpx rgba(0, 0, 0, 0.6),
+    inset 0 0 15rpx rgba(0, 0, 0, 0.3),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.03);
   overflow: hidden;
+  /* 禁止任何transform动画，确保棋盘稳定静止 */
+  transform: none !important;
+  will-change: auto;
 }
 
 .game-row {
   display: flex;
   width: 100%;
-  height: 16.67%;
+  height: 10%; /* 10行，每行10%高度 */
 }
 
+/* 粒子光效 - 仅在方块内部生成局部金色高光，不带动整体棋盘 */
 .tile {
   flex: 1;
-  border: 1rpx solid rgba(80, 80, 80, 0.3);
+  border: 1rpx solid rgba(80, 80, 80, 0.25);
   box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  /* 禁止方块scale动画，避免整体抖动 */
+  transform: none;
+}
+
+/* 黑块内部粒子光效 - 局部金色高光反馈 */
+@keyframes inner-glow {
+  0% {
+    opacity: 1;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+  }
+}
+
+.tile-hit::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60%;
+  height: 60%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.5) 0%, rgba(255, 200, 100, 0.3) 30%, transparent 70%);
+  border-radius: 50%;
+  animation: inner-glow 0.12s ease-out forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* 按压微光特效 - 仅在方块内部 */
+.tile:active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(255, 215, 0, 0.15) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 5;
 }
 
 .tile-black {
@@ -135,47 +191,6 @@
 .tile-white {
   background: linear-gradient(180deg, #e8e4dc 0%, #d8d4cc 50%, #d0ccc4 100%);
   box-shadow: inset 0 1rpx 1rpx rgba(255,255,255,0.3), inset 0 -1rpx 1rpx rgba(0,0,0,0.05);
-}
-
-/* 粒子光效 - 金色高光反馈 */
-@keyframes particle-burst {
-  0% {
-    transform: scale(0.2);
-    opacity: 1;
-    box-shadow: 
-      0 0 20rpx rgba(255, 215, 0, 1),
-      0 0 40rpx rgba(255, 215, 0, 0.8),
-      0 0 60rpx rgba(255, 215, 0, 0.5);
-  }
-  40% {
-    transform: scale(1.2);
-    opacity: 0.9;
-    box-shadow: 
-      0 0 25rpx rgba(255, 215, 0, 0.8),
-      0 0 50rpx rgba(255, 215, 0, 0.5),
-      0 0 80rpx rgba(255, 215, 0, 0.3);
-  }
-  100% {
-    transform: scale(2);
-    opacity: 0;
-    box-shadow: 
-      0 0 30rpx rgba(255, 215, 0, 0.2),
-      0 0 60rpx rgba(255, 215, 0, 0.1),
-      0 0 100rpx rgba(255, 215, 0, 0);
-  }
-}
-
-.tile-hit {
-  animation: particle-burst 0.12s ease-out forwards;
-  background: radial-gradient(circle at center, rgba(255, 215, 0, 0.4) 0%, rgba(255, 200, 100, 0.2) 40%, transparent 70%) !important;
-}
-
-.tile:active {
-  transform: scale(0.98);
-  background: linear-gradient(180deg, #2a2a2a, #1a1a1a) !important;
-  box-shadow: 
-    inset 0 0 15rpx rgba(255, 215, 0, 0.4),
-    inset 0 2rpx 4rpx rgba(255, 255, 255, 0.1);
 }
 
 .idle-overlay {
