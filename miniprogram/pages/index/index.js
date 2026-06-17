@@ -26,6 +26,7 @@ Page({
     const sysInfo = wx.getSystemInfoSync()
     // 游戏区域高度约为屏幕高度的70%
     this._rowHeight = Math.floor(sysInfo.windowHeight * 0.7 / this._visibleRows)
+    this._gameAreaHeight = Math.floor(sysInfo.windowHeight * 0.7)
   },
 
   // 生成新行（1个黑块，位置随机）
