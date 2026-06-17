@@ -1,15 +1,14 @@
 // utils/audio.js
-// 卡农旋律音符（帕赫贝尔卡农 D大调简化版）
-const CANON_NOTES = [
-  // D大调卡农基础旋律
-  293.66, 330, 349.23, 392, 440, 349.23, 392, 330,  // 第1段
-  293.66, 330, 349.23, 392, 440, 349.23, 392, 330,  // 第2段
-  262, 293.66, 330, 349.23, 392, 330, 349.23, 293.66, // 第3段
-  262, 293.66, 330, 349.23, 392, 330, 349.23, 293.66, // 第4段
+// C大调卡农和弦进行：C4 - E4 - G4 - C5 循环
+const CANON_CHORD = [
+  262,  // C4
+  330,  // E4
+  392,  // G4
+  523   // C5
 ];
 
-// 点击音符（C大调）
-const NOTE_FREQUENCIES = [261.63, 293.66, 329.63, 349.23]; // C4, D4, E4, F4
+// 点击音符（C大调）- 与卡农和弦对应
+const NOTE_FREQUENCIES = [262, 330, 392, 523]; // C4, E4, G4, C5
 
 let audioCtx = null;
 let bgmInterval = null;
@@ -23,7 +22,7 @@ function getAudioContext() {
   return audioCtx;
 }
 
-// 播放单个音符
+// 播放单个音符（音游敲击）
 function playNote(columnIndex) {
   if (columnIndex < 0 || columnIndex > 3) return;
 
@@ -34,14 +33,15 @@ function playNote(columnIndex) {
   oscillator.type = 'sine';
   oscillator.frequency.value = NOTE_FREQUENCIES[columnIndex];
 
-  gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+  // 敲击音量0.4，时值150ms
+  gainNode.gain.setValueAtTime(0.4, ctx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
 
   oscillator.connect(gainNode);
   gainNode.connect(ctx.destination);
 
   oscillator.start(ctx.currentTime);
-  oscillator.stop(ctx.currentTime + 0.2);
+  oscillator.stop(ctx.currentTime + 0.15);
 }
 
 // 播放卡农背景音乐音符
@@ -51,10 +51,10 @@ function playCanonNote() {
   const gainNode = ctx.createGain();
 
   oscillator.type = 'sine';
-  oscillator.frequency.value = CANON_NOTES[bgmNoteIndex];
+  oscillator.frequency.value = CANON_CHORD[bgmNoteIndex];
 
-  // 背景音乐音量较小
-  gainNode.gain.setValueAtTime(0.15, ctx.currentTime);
+  // 背景音乐音量0.2，柔和不干扰
+  gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
   gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
 
   oscillator.connect(gainNode);
@@ -63,7 +63,7 @@ function playCanonNote() {
   oscillator.start(ctx.currentTime);
   oscillator.stop(ctx.currentTime + 0.3);
 
-  bgmNoteIndex = (bgmNoteIndex + 1) % CANON_NOTES.length;
+  bgmNoteIndex = (bgmNoteIndex + 1) % CANON_CHORD.length;
 }
 
 // 开始播放卡农背景音乐
@@ -72,7 +72,7 @@ function startBgm() {
   isBgmPlaying = true;
   bgmNoteIndex = 0;
   
-  // 每300ms播放一个音符
+  // C大调卡农和弦循环，每300ms播放一个音符
   bgmInterval = setInterval(() => {
     if (isBgmPlaying) {
       playCanonNote();

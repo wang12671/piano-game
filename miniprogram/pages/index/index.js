@@ -31,9 +31,7 @@ Page({
 
   // 生成新行（1个黑块，位置随机）
   _generateRow() {
-    const blocks = [0, 0, 0, 0]
-    blocks[Math.floor(Math.random() * 4)] = 1
-    return { blocks }
+    return { blocks: [0, 0, 0, 0], hits: [false, false, false, false] }
   },
 
   // 初始化游戏行
@@ -42,7 +40,7 @@ Page({
     for (let i = 0; i < this._totalRows; i++) {
       // 底部3行不生成黑块，给玩家反应时间
       if (i >= this._totalRows - 3) {
-        rows.push({ blocks: [0, 0, 0, 0] })
+        rows.push({ blocks: [0, 0, 0, 0], hits: [false, false, false, false] })
       } else {
         rows.push(this._generateRow())
       }
@@ -51,13 +49,12 @@ Page({
   },
 
   // 获取当前速度（毫秒）
+  // 初始速度600ms，每10分速度减少50ms（无上限）
   _getSpeed(score) {
     const currentScore = score !== undefined ? score : this.data.score
-    if (currentScore >= 40) return 250
-    if (currentScore >= 30) return 300
-    if (currentScore >= 20) return 350
-    if (currentScore >= 10) return 400
-    return 500
+    const newSpeed = 600 - Math.floor(currentScore / 10) * 50
+    // 最低速度为50ms，确保游戏可玩性
+    return Math.max(newSpeed, 50)
   },
 
   startGame() {
@@ -139,9 +136,17 @@ Page({
       // 点击黑块 - 得分
       playNote(col)
       let rows = this.data.rows.slice()
-      rows[row].blocks[col] = 0 // 移除黑块
+      // 先触发粒子光效动画
+      rows[row].hits[col] = true
+      this.setData({ rows })
+      // 100ms后移除黑块
+      setTimeout(() => {
+        rows[row].blocks[col] = 0
+        rows[row].hits[col] = false
+        this.setData({ rows })
+      }, 100)
       const newScore = this.data.score + 1
-      this.setData({ score: newScore, rows })
+      this.setData({ score: newScore })
       // 加速 - 只有速度变化时才重建定时器
       this._updateSpeed(newScore)
     } else {
