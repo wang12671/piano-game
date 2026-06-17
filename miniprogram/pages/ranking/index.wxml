@@ -1,0 +1,26 @@
+<view class="container">
+  <view class="ranking-title">排行榜</view>
+
+  <view class="loading" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <view class="rank-list" wx:elif="{{rankList.length > 0}}">
+    <view class="rank-item {{item.rank <= 3 ? 'top-rank' : ''}}" wx:for="{{rankList}}" wx:key="_id">
+      <view class="rank-number">
+        <text class="rank-badge {{item.rank === 1 ? 'gold' : item.rank === 2 ? 'silver' : item.rank === 3 ? 'bronze' : ''}}">{{item.rank}}</text>
+      </view>
+      <view class="rank-info">
+        <text class="rank-nickname">{{item.nickname || '匿名玩家'}}</text>
+      </view>
+      <view class="rank-score">{{item.score}}</view>
+    </view>
+  </view>
+
+  <view class="empty" wx:else>
+    <text>暂无排行数据</text>
+    <text class="empty-tip">快去玩一局吧！</text>
+  </view>
+
+  <view class="btn btn-back" bindtap="goBack">返回首页</view>
+</view>

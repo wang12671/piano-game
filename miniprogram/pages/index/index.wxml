@@ -1,0 +1,44 @@
+<view class="container">
+  <view class="header">
+    <view class="score-info">
+      <view class="score-label">分数</view>
+      <view class="score-value">{{score}}</view>
+    </view>
+    <view class="score-info">
+      <view class="score-label">最高分</view>
+      <view class="score-value best">{{bestScore}}</view>
+    </view>
+  </view>
+
+  <!-- 游戏区域 -->
+  <view class="game-area" catchtouchstart="onTileTap">
+    <view class="game-row" wx:for="{{rows}}" wx:key="index" wx:for-item="row">
+      <view class="tile {{row.blocks[index2] === 1 ? 'tile-black' : 'tile-white'}}" 
+            wx:for="{{row.blocks}}" wx:key="index2" wx:for-item="block" wx:for-index="index2">
+      </view>
+    </view>
+  </view>
+
+  <!-- 未开始状态 -->
+  <view class="idle-overlay" wx:if="{{gameState === 'idle'}}">
+    <view class="idle-content">
+      <view class="game-title">别踩白块</view>
+      <view class="game-desc">点击黑块，避开白块</view>
+      <view class="btn btn-start" bindtap="startGame">开始游戏</view>
+    </view>
+  </view>
+
+  <!-- 游戏结束弹窗 -->
+  <view class="modal-mask" wx:if="{{showEndModal}}">
+    <view class="modal-content">
+      <view class="modal-title">游戏结束</view>
+      <view class="modal-score">{{score}}</view>
+      <view class="modal-label">本次得分</view>
+      <view class="modal-best">最高分: {{bestScore}}</view>
+      <view class="upload-result" wx:if="{{uploadResult}}">{{uploadResult}}</view>
+      <view class="modal-btn btn-upload" bindtap="uploadScore">上传分数</view>
+      <view class="modal-btn btn-restart" bindtap="restartGame">再玩一次</view>
+      <view class="modal-btn btn-ranking" bindtap="goToRanking">排行榜</view>
+    </view>
+  </view>
+</view>

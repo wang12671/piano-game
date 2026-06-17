@@ -1,0 +1,16 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/ranking/index"
+  ],
+  "window": {
+    "backgroundColor": "#1a1a2e",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#16213e",
+    "navigationBarTitleText": "别踩白块",
+    "navigationBarTextStyle": "white"
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

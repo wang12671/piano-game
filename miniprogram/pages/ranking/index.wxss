@@ -1,0 +1,124 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 30rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.ranking-title {
+  font-size: 44rpx;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 40rpx;
+}
+
+.loading {
+  margin-top: 100rpx;
+  font-size: 30rpx;
+  color: #aaaaaa;
+}
+
+.rank-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.rank-item {
+  display: flex;
+  align-items: center;
+  background: #16213e;
+  border-radius: 16rpx;
+  padding: 24rpx 30rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.top-rank {
+  background: #1a2744;
+  border: 2rpx solid #00d4ff44;
+}
+
+.rank-number {
+  width: 60rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.rank-badge {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #ffffff;
+  background: #333355;
+}
+
+.rank-badge.gold {
+  background: linear-gradient(135deg, #ffd700, #ffb347);
+  color: #333;
+}
+
+.rank-badge.silver {
+  background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+  color: #333;
+}
+
+.rank-badge.bronze {
+  background: linear-gradient(135deg, #cd7f32, #a0522d);
+}
+
+.rank-info {
+  flex: 1;
+  margin-left: 20rpx;
+}
+
+.rank-nickname {
+  font-size: 30rpx;
+  color: #e0e0e0;
+}
+
+.rank-score {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #00d4ff;
+  min-width: 100rpx;
+  text-align: right;
+}
+
+.empty {
+  margin-top: 100rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.empty text {
+  font-size: 32rpx;
+  color: #aaaaaa;
+}
+
+.empty-tip {
+  font-size: 26rpx !important;
+  color: #666688 !important;
+}
+
+.btn-back {
+  margin-top: 60rpx;
+  width: 80%;
+  padding: 24rpx 0;
+  text-align: center;
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 500;
+  border-radius: 40rpx;
+}

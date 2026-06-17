@@ -1,0 +1,190 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  padding: 20rpx 0;
+  background: #16213e;
+}
+
+.score-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.score-label {
+  font-size: 24rpx;
+  color: #8888aa;
+}
+
+.score-value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.score-value.best {
+  color: #ffd700;
+}
+
+.game-area {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+}
+
+.game-row {
+  display: flex;
+  flex: 1;
+  width: 100%;
+}
+
+.tile {
+  flex: 1;
+  border: 1rpx solid #2a2a4a;
+  box-sizing: border-box;
+}
+
+.tile-black {
+  background: #222222;
+}
+
+.tile-white {
+  background: #f0f0f0;
+}
+
+.idle-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(26, 26, 46, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.idle-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-title {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 20rpx;
+}
+
+.game-desc {
+  font-size: 28rpx;
+  color: #8888aa;
+  margin-bottom: 60rpx;
+}
+
+.btn {
+  padding: 24rpx 80rpx;
+  border-radius: 40rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  text-align: center;
+}
+
+.btn-start {
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  color: #ffffff;
+}
+
+.modal-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.modal-content {
+  background: #16213e;
+  border-radius: 24rpx;
+  padding: 50rpx 40rpx;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  color: #ffffff;
+  margin-bottom: 20rpx;
+}
+
+.modal-score {
+  font-size: 72rpx;
+  font-weight: 700;
+  color: #00d4ff;
+}
+
+.modal-label {
+  font-size: 26rpx;
+  color: #8888aa;
+  margin-bottom: 10rpx;
+}
+
+.modal-best {
+  font-size: 28rpx;
+  color: #ffd700;
+  margin-bottom: 20rpx;
+}
+
+.upload-result {
+  font-size: 26rpx;
+  color: #44ff88;
+  margin-bottom: 16rpx;
+}
+
+.modal-btn {
+  width: 100%;
+  padding: 22rpx 0;
+  border-radius: 36rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 16rpx;
+}
+
+.btn-upload {
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  color: #ffffff;
+}
+
+.btn-restart {
+  background: linear-gradient(135deg, #4444aa, #333388);
+  color: #ffffff;
+}
+
+.btn-ranking {
+  background: transparent;
+  border: 2rpx solid #00d4ff;
+  color: #00d4ff;
+  margin-bottom: 0;
+}
