@@ -36,12 +36,12 @@ Page({
     return { blocks, hits: [false, false, false, false] }
   },
 
-  // 初始化游戏行 - 确保一开始就有多个黑块下落
+  // 初始化游戏行 - 黑块均匀分布在棋盘中上至中部区域
   _initRows() {
     const rows = []
     for (let i = 0; i < this._totalRows; i++) {
-      // 最底部1行不生成黑块，给玩家反应时间
-      if (i >= this._totalRows - 1) {
+      // 最底部2行不生成黑块，预留充足可点击空间
+      if (i >= this._totalRows - 2) {
         rows.push({ blocks: [0, 0, 0, 0], hits: [false, false, false, false] })
       } else {
         rows.push(this._generateRow())
@@ -51,12 +51,12 @@ Page({
   },
 
   // 获取当前速度（毫秒）
-  // 初始速度600ms，每10分速度减少50ms（无上限）
+  // 初始速度800ms（平缓），每10分速度减少40ms（线性加快），最低100ms
   _getSpeed(score) {
     const currentScore = score !== undefined ? score : this.data.score
-    const newSpeed = 600 - Math.floor(currentScore / 10) * 50
-    // 最低速度为50ms，确保游戏可玩性
-    return Math.max(newSpeed, 50)
+    const newSpeed = 800 - Math.floor(currentScore / 10) * 40
+    // 最低速度为100ms，确保游戏可玩性，不会秒结束
+    return Math.max(newSpeed, 100)
   },
 
   startGame() {
@@ -127,7 +127,7 @@ Page({
   onTileTap(e) {
     if (this.data.gameState !== 'playing') return
 
-    // 直接从事件参数获取行列信息，避免异步DOM查询
+    // 直接从事件参数获取行列信息，即时响应无延迟
     const row = parseInt(e.currentTarget.dataset.row)
     const col = parseInt(e.currentTarget.dataset.col)
 
@@ -135,21 +135,20 @@ Page({
 
     const targetRow = this.data.rows[row]
     if (targetRow.blocks[col] === 1) {
-      // 点击黑块 - 得分
+      // 点击黑块 - 即时得分，同步播放卡农音符
       playNote(col)
       let rows = this.data.rows.slice()
-      // 先触发粒子光效动画
+      // 即时触发金色粒子高光反馈
       rows[row].hits[col] = true
-      this.setData({ rows })
-      // 100ms后移除黑块
+      rows[row].blocks[col] = 0 // 立即移除黑块，无延迟
+      const newScore = this.data.score + 1
+      this.setData({ rows, score: newScore })
+      // 120ms后清除粒子动画
       setTimeout(() => {
-        rows[row].blocks[col] = 0
         rows[row].hits[col] = false
         this.setData({ rows })
-      }, 100)
-      const newScore = this.data.score + 1
-      this.setData({ score: newScore })
-      // 加速 - 只有速度变化时才重建定时器
+      }, 120)
+      // 线性加速 - 只有速度变化时才重建定时器
       this._updateSpeed(newScore)
     } else {
       // 点击白块 - 游戏结束

@@ -13,11 +13,29 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 24rpx 32rpx;
-  background: linear-gradient(135deg, rgba(26,26,46,0.95), rgba(15,15,26,0.98));
-  backdrop-filter: blur(10px);
-  border-radius: 0 0 24rpx 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
+  padding: 28rpx 40rpx;
+  background: linear-gradient(135deg, rgba(30, 40, 80, 0.85), rgba(20, 30, 60, 0.92));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 0 0 32rpx 32rpx;
+  box-shadow: 
+    0 8rpx 32rpx rgba(0, 0, 0, 0.4),
+    0 2rpx 8rpx rgba(0, 0, 0, 0.2),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  z-index: 100;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 50%);
+  border-radius: 0 0 32rpx 32rpx;
+  pointer-events: none;
 }
 
 .score-info {
@@ -49,18 +67,21 @@
 }
 
 .score-value {
-  font-size: 48rpx;
+  font-size: 44rpx;
   font-weight: 700;
-  background: linear-gradient(135deg, #c0c0c0, #e0e0e0, #f0f0f0);
+  background: linear-gradient(135deg, #e8e8f0, #d0d0e0, #f5f5ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 8px rgba(200, 210, 230, 0.4);
+  filter: drop-shadow(0 0 4px rgba(220, 230, 250, 0.3));
 }
 
 .score-value.best {
-  background: linear-gradient(135deg, #ffd700, #ffec8b, #ffd700);
+  background: linear-gradient(135deg, #ffd700, #ffe066, #ffc400, #ffd700);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.3);
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.6), 0 0 24px rgba(255, 215, 0, 0.4);
+  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.5));
 }
 
 .game-area {
@@ -103,46 +124,58 @@
 }
 
 .tile-black {
-  background: #1a1a1a;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-blend-mode: overlay;
+  background: linear-gradient(180deg, #1e1e1e, #141414, #0a0a0a);
+  background-image: 
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.15'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #1e1e1e, #141414);
+  background-blend-mode: overlay, normal;
+  box-shadow: inset 0 1rpx 2rpx rgba(255,255,255,0.05), inset 0 -1rpx 2rpx rgba(0,0,0,0.3);
 }
 
 .tile-white {
-  background: linear-gradient(180deg, #e8e4dc, #d4d0c8);
+  background: linear-gradient(180deg, #e8e4dc 0%, #d8d4cc 50%, #d0ccc4 100%);
+  box-shadow: inset 0 1rpx 1rpx rgba(255,255,255,0.3), inset 0 -1rpx 1rpx rgba(0,0,0,0.05);
 }
 
-/* 粒子光效 */
+/* 粒子光效 - 金色高光反馈 */
 @keyframes particle-burst {
   0% {
-    transform: scale(0.3);
+    transform: scale(0.2);
     opacity: 1;
-    box-shadow: 0 0 15rpx rgba(255, 215, 0, 0.9), 0 0 30rpx rgba(255, 215, 0, 0.6), 0 0 45rpx rgba(255, 215, 0, 0.3);
+    box-shadow: 
+      0 0 20rpx rgba(255, 215, 0, 1),
+      0 0 40rpx rgba(255, 215, 0, 0.8),
+      0 0 60rpx rgba(255, 215, 0, 0.5);
   }
-  50% {
-    transform: scale(1.5);
-    opacity: 0.7;
-    box-shadow: 0 0 20rpx rgba(255, 215, 0, 0.7), 0 0 40rpx rgba(255, 215, 0, 0.4), 0 0 60rpx rgba(255, 215, 0, 0.2);
+  40% {
+    transform: scale(1.2);
+    opacity: 0.9;
+    box-shadow: 
+      0 0 25rpx rgba(255, 215, 0, 0.8),
+      0 0 50rpx rgba(255, 215, 0, 0.5),
+      0 0 80rpx rgba(255, 215, 0, 0.3);
   }
   100% {
-    transform: scale(2.5);
+    transform: scale(2);
     opacity: 0;
-    box-shadow: 0 0 25rpx rgba(255, 215, 0, 0.3), 0 0 50rpx rgba(255, 215, 0, 0.1), 0 0 75rpx rgba(255, 215, 0, 0);
+    box-shadow: 
+      0 0 30rpx rgba(255, 215, 0, 0.2),
+      0 0 60rpx rgba(255, 215, 0, 0.1),
+      0 0 100rpx rgba(255, 215, 0, 0);
   }
 }
 
 .tile-hit {
-  animation: particle-burst 0.15s ease-out;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%) !important;
-}
-
-.tile-hit {
-  animation: particle-burst 0.1s ease-out;
+  animation: particle-burst 0.12s ease-out forwards;
+  background: radial-gradient(circle at center, rgba(255, 215, 0, 0.4) 0%, rgba(255, 200, 100, 0.2) 40%, transparent 70%) !important;
 }
 
 .tile:active {
-  background: #2a2a2a !important;
-  box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.3);
+  transform: scale(0.98);
+  background: linear-gradient(180deg, #2a2a2a, #1a1a1a) !important;
+  box-shadow: 
+    inset 0 0 15rpx rgba(255, 215, 0, 0.4),
+    inset 0 2rpx 4rpx rgba(255, 255, 255, 0.1);
 }
 
 .idle-overlay {
