@@ -46,12 +46,12 @@ Page({
   },
 
   // 获取当前速度
-  _getSpeed() {
-    const score = this.data.score
-    if (score >= 40) return 300
-    if (score >= 30) return 350
-    if (score >= 20) return 420
-    if (score >= 10) return 500
+  _getSpeed(score) {
+    const currentScore = score !== undefined ? score : this.data.score
+    if (currentScore >= 40) return 300
+    if (currentScore >= 30) return 350
+    if (currentScore >= 20) return 420
+    if (currentScore >= 10) return 500
     return 600
   },
 
@@ -69,9 +69,21 @@ Page({
 
   _startFalling() {
     clearInterval(this._timer)
+    this._currentSpeed = this._getSpeed()
     this._timer = setInterval(() => {
       this._fallDown()
-    }, this._getSpeed())
+    }, this._currentSpeed)
+  },
+
+  _updateSpeed(score) {
+    const newSpeed = this._getSpeed(score)
+    if (newSpeed !== this._currentSpeed) {
+      clearInterval(this._timer)
+      this._currentSpeed = newSpeed
+      this._timer = setInterval(() => {
+        this._fallDown()
+      }, this._currentSpeed)
+    }
   },
 
   _fallDown() {
@@ -92,33 +104,26 @@ Page({
   onTileTap(e) {
     if (this.data.gameState !== 'playing') return
 
-    // 获取点击位置
-    const touch = e.touches[0]
-    const query = wx.createSelectorQuery()
-    query.select('.game-area').boundingClientRect((rect) => {
-      if (!rect) return
-      const x = touch.clientX - rect.left
-      const y = touch.clientY - rect.top
-      const col = Math.floor(x / (rect.width / 4))
-      const row = Math.floor(y / this._rowHeight)
+    // 直接从事件参数获取行列信息，避免异步DOM查询
+    const row = parseInt(e.currentTarget.dataset.row)
+    const col = parseInt(e.currentTarget.dataset.col)
 
-      if (col < 0 || col > 3 || row < 0 || row >= this.data.rows.length) return
+    if (col < 0 || col > 3 || row < 0 || row >= this.data.rows.length) return
 
-      const targetRow = this.data.rows[row]
-      if (targetRow.blocks[col] === 1) {
-        // 点击黑块 - 得分
-        playNote(col)
-        let rows = this.data.rows.slice()
-        rows[row].blocks[col] = 0 // 移除黑块
-        const newScore = this.data.score + 1
-        this.setData({ score: newScore, rows })
-        // 加速
-        this._startFalling()
-      } else {
-        // 点击白块 - 游戏结束
-        this._gameOver()
-      }
-    }).exec()
+    const targetRow = this.data.rows[row]
+    if (targetRow.blocks[col] === 1) {
+      // 点击黑块 - 得分
+      playNote(col)
+      let rows = this.data.rows.slice()
+      rows[row].blocks[col] = 0 // 移除黑块
+      const newScore = this.data.score + 1
+      this.setData({ score: newScore, rows })
+      // 加速 - 只有速度变化时才重建定时器
+      this._updateSpeed(newScore)
+    } else {
+      // 点击白块 - 游戏结束
+      this._gameOver()
+    }
   },
 
   _gameOver() {

@@ -11,10 +11,11 @@
   </view>
 
   <!-- 游戏区域 -->
-  <view class="game-area" catchtouchstart="onTileTap">
+  <view class="game-area">
     <view class="game-row" wx:for="{{rows}}" wx:key="index" wx:for-item="row">
       <view class="tile {{row.blocks[index2] === 1 ? 'tile-black' : 'tile-white'}}" 
-            wx:for="{{row.blocks}}" wx:key="index2" wx:for-item="block" wx:for-index="index2">
+            wx:for="{{row.blocks}}" wx:key="index2" wx:for-item="block" wx:for-index="index2"
+            catchtap="onTileTap" data-row="{{index}}" data-col="{{index2}}">
       </view>
     </view>
   </view>
