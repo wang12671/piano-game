@@ -1,10 +1,11 @@
 <view class="container">
   <view class="header">
-    <view class="score-info">
+    <view class="score-info left">
       <view class="score-label">分数</view>
       <view class="score-value">{{score}}</view>
     </view>
-    <view class="score-info">
+    <view class="game-title-header">别踩白块</view>
+    <view class="score-info right">
       <view class="score-label">最高分</view>
       <view class="score-value best">{{bestScore}}</view>
     </view>

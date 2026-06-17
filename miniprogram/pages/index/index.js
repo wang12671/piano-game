@@ -31,15 +31,17 @@ Page({
 
   // 生成新行（1个黑块，位置随机）
   _generateRow() {
-    return { blocks: [0, 0, 0, 0], hits: [false, false, false, false] }
+    const blocks = [0, 0, 0, 0]
+    blocks[Math.floor(Math.random() * 4)] = 1
+    return { blocks, hits: [false, false, false, false] }
   },
 
-  // 初始化游戏行
+  // 初始化游戏行 - 确保一开始就有多个黑块下落
   _initRows() {
     const rows = []
     for (let i = 0; i < this._totalRows; i++) {
-      // 底部3行不生成黑块，给玩家反应时间
-      if (i >= this._totalRows - 3) {
+      // 最底部1行不生成黑块，给玩家反应时间
+      if (i >= this._totalRows - 1) {
         rows.push({ blocks: [0, 0, 0, 0], hits: [false, false, false, false] })
       } else {
         rows.push(this._generateRow())

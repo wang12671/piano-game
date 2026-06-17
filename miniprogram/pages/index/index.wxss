@@ -10,11 +10,14 @@
 
 .header {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
-  padding: 20rpx 0;
+  padding: 24rpx 32rpx;
   background: linear-gradient(135deg, rgba(26,26,46,0.95), rgba(15,15,26,0.98));
   backdrop-filter: blur(10px);
+  border-radius: 0 0 24rpx 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.3);
 }
 
 .score-info {
@@ -23,9 +26,26 @@
   align-items: center;
 }
 
+.score-info.left .score-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 300;
+}
+
+.score-info.right .score-label {
+  color: rgba(150, 150, 170, 0.8);
+}
+
 .score-label {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #8888aa;
+  margin-bottom: 4rpx;
+}
+
+.game-title-header {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
 .score-value {
@@ -93,24 +113,27 @@
 }
 
 /* 粒子光效 */
-.particle {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
 @keyframes particle-burst {
   0% {
-    transform: scale(0.5);
+    transform: scale(0.3);
     opacity: 1;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+    box-shadow: 0 0 15rpx rgba(255, 215, 0, 0.9), 0 0 30rpx rgba(255, 215, 0, 0.6), 0 0 45rpx rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.7;
+    box-shadow: 0 0 20rpx rgba(255, 215, 0, 0.7), 0 0 40rpx rgba(255, 215, 0, 0.4), 0 0 60rpx rgba(255, 215, 0, 0.2);
   }
   100% {
-    transform: scale(2);
+    transform: scale(2.5);
     opacity: 0;
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0);
+    box-shadow: 0 0 25rpx rgba(255, 215, 0, 0.3), 0 0 50rpx rgba(255, 215, 0, 0.1), 0 0 75rpx rgba(255, 215, 0, 0);
   }
+}
+
+.tile-hit {
+  animation: particle-burst 0.15s ease-out;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%) !important;
 }
 
 .tile-hit {
